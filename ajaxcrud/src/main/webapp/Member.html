@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Member</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+//페이징 하기 위한 현재 페이지 변수를 선언하고 1로 초기화
+let currentPage = {
+		value:1,
+		get curretnPageNum(){
+			return this.value;
+		},
+		set curretnPageNum(value){
+			console.log('value: '+value);
+			this.value = value;
+			$('#btnList').click();
+		}
+}
+
+$(document).ready(function(){
+    // 목록보기
+    $('#btnList').click(function(){
+        console.log('#btnList click');
+        console.log('currentPage: '+currentPage.curretnPageNum);
+        $.ajax({
+            url:'/getMemberList'
+            ,data:{'currentPage':currentPage.curretnPageNum}            
+        	,type:'GET'
+            ,success:function(data){ // data -> json member list
+            	// 회원목록이 이미 존재하면 그 뒤에 append(덧붙이다)가 되기 때문에 버튼을 누르기 전에 존재하던 회원목록은 지워야한다.
+            	$('#list').empty();
+            	// 회원목록을 화면에 출력
+                $(data.memberList).each(function(index,item){
+                	$('#list').append('<tr>');
+                    $('#list').append('<td><input type="checkbox" class="idsToDelete" value="'+item.id+'"></td>');
+                    $('#list').append('<td>'+item.id+'</td>');
+                    $('#list').append('<td>'+item.pw+'</td>');
+                    $('#list').append('<td>'+item.name+'</td>');
+                   	$('#list').append('<td>'+item.age+'</td>');
+                    $('#list').append('<td>'+item.gender+'</td>');
+                    $('#list').append('</tr>');
+                });
+            	
+            	// 페이지 번호 목록
+            	//$('#pagingNumberList').append('<a href="#" onclick="currentPage.curretnPageNum='+번호+'">'+번호+'</a>&nbsp;&nbsp;');
+            	// 페이지 번호 목록이 실행되면 이전에 있던 목록을 지운다.
+            	$('#pagingNumberList').empty();
+            	// 반복문을 멈추기 위한 변수 loop
+            	let loop = true;
+            	// data.pagingNumber만큼 반복
+            	for(var step=1; step<data.pagingNumber+1; step++){
+            		if(loop){
+            			// 페이지 번호가 마지막 페이지와 같으면 반복 종료 
+            			if(data.pageNo*data.pagingNumber+step == data.lastPage){
+            				loop = false;
+            			}
+            			$('#pagingNumberList').append('<a href="#" onclick="currentPage.curretnPageNum='+(data.pageNo*data.pagingNumber+step)+'">'+(data.pageNo*data.pagingNumber+step)+'</a>&nbsp;&nbsp;');
+            		}
+            	}
+            	
+            	// 이전, 다음 버튼 만들기
+            	// 이전 링크는 페이지 번호의 맨 앞에 있어야 하니 prepend를 사용
+            	// 이전 링크를 누르면  페이지 번호 묶음(현재는 5)의 앞 페이지 번호 묶음의 가장 마지막 페이지로 이동한다.
+            	// 6,7,8,9,10페이지는 (data.pageNo(1)*data.pagingNumber(5)+1~5인데 ) 이전 링크를 누르면
+            	// 현재 페이지는 (data.pageNo(1)*data.pagingNumber(5) 즉 5페이지가 되고 5페이지로 이동한다.
+            	if(data.pageNo > 0){
+            		$('#pagingNumberList').prepend('<a href="#" onclick="currentPage.curretnPageNum='+(data.pageNo*data.pagingNumber)+'">Prev</a>&nbsp;&nbsp;');
+            	}
+            	
+            	// 다음 링크는 페이지 번호의 맨 뒤에 있어야 하니 append를 사용
+            	// 다음 페이지는 마지막 페이지에서는 보이면 안된다.
+            	if(parseInt(data.lastPage/data.pagingNumber) != data.pageNo){
+            		$('#pagingNumberList').append('<a href="#" onclick="currentPage.curretnPageNum='+(data.pageNo*data.pagingNumber+data.pagingNumber+1)+'">Next</a>&nbsp;&nbsp;');
+            	}
+            }
+        });
+    });
+    
+    // 추가
+    $('#btnAdd').click(function(){
+        let id = $('#id').val();
+        let pw = $('#pw').val();
+        let name = $('#name').val();
+        let age = $('#age').val();
+        let gender = $('#gender').val();
+        console.log('#btnAdd click');
+        $.ajax({
+            url:'/addMember'
+            ,type:'POST'
+            ,data:{'id':id,'pw':pw,'name':name,'age':age,'gender':gender}
+            ,success : function() {
+                $('#btnList').trigger('click');
+            }
+        });
+    });
+    
+    // 수정
+    $('#btnModify').click(function(){
+        let id = $('#id').val();
+        let pw = $('#pw').val();
+        let name = $('#name').val();
+        let age = $('#age').val();
+        let gender = $('#gender').val();
+        console.log('#btnModify click');
+        $.ajax({
+            url:'/modifyMember'
+            ,type:'POST'
+            ,data:{'id':id,'pw':pw,'name':name,'age':age,'gender':gender}
+            ,success : function() {
+                $('#btnList').trigger('click');
+            }
+        });
+    }); 
+    
+    // 삭제
+    $('#btnRemove').click(function(){ // $('#btnRemove').click()
+        let idsToDelete = new Array(); // let idsToDelete = [];
+        $('.idsToDelete').each(function(index,item){ 
+        	idsToDelete.push($(item).val());
+        });
+        
+        console.log('#btnRemove click');
+        $.ajax({
+            url:'/removeMember'
+            ,type:'POST'
+            ,data:{'idsToDelete':idsToDelete}
+            ,success:function(){
+                $('#btnList').trigger('click');
+            }
+        });
+    });    
+    $('#btnList').trigger('click');
+});
+
+//전역변수 currentPage의 변화가 감지되면
+/* if(TempCurretnPage != currentPage){
+	$('#btnList').trigger('click');
+} */
+</script>
+</head>
+<body>
+    <h1>Member</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>pw</th>
+                <th>name</th>
+                <th>age</th>
+                <th>gender</th>
+                <th>추가</th>
+                <th>수정</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="text" id="id"></td>
+                <td><input type="password" id="pw"></td>
+                <td><input type="text" id="name"></td>
+                <td><input type="text" id="age"></td>
+                <td>
+                    <select id="gender">
+                        <option value="Male">남</option>
+                        <option value="Female">여</option>
+                    </select>
+                </td>
+                <td><button type="button" id="btnAdd">add</button></td>
+                <td><button type="button" id="btnModify">modify</button></td>
+            </tr>
+        </tbody>
+    </table>
+ 
+    <button type="button" id="btnList">회원리스트</button>
+    <button type="button" id="btnRemove">remove</button>
+    <table border="1">
+        <thead>
+            <tr>
+                <th></th>
+                <th>id</th>
+                <th>pw</th>
+                <th>name</th>
+                <th>age</th>
+                <th>gender</th>
+            </tr>
+        </thead>
+        <!-- 회원 목록 출력 -->
+        <tbody id="list">
+        </tbody>
+    </table> 
+    <!-- 이전 -->
+    <div id="prev"></div>
+    
+    <!-- 페이지 번호 출력 -->
+    <div id="pagingNumberList"></div>
+
+    <!-- 다음 -->
+    <div id="next"></div>
+</body>
+</html>
