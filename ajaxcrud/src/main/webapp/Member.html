@@ -124,20 +124,64 @@ $(document).ready(function(){
         
     // 추가
     $('#btnAdd').click(function(){
+        console.log('#btnAdd click');
+    	// id, pw, name, age, gender값을 가져온다.
         let id = $('#id').val();
         let pw = $('#pw').val();
         let name = $('#name').val();
         let age = $('#age').val();
         let gender = $('#gender').val();
-        console.log('#btnAdd click');
-        $.ajax({
-            url:'/addMember'
-            ,type:'POST'
-            ,data:{'id':id,'pw':pw,'name':name,'age':age,'gender':gender}
-            ,success : function() {
-                $('#btnList').trigger('click');
-            }
-        });
+        
+       	// 회원가입 유효성 검사
+       	// RegExp 객체는 정규 표현식을 구현한 자바스크립트 표준 내장 객체입니다.
+       	// test() 메소드는 인수로 전달된 문자열에 특정 패턴과 일치하는 문자열이 있는지를 검색합니다. 만약에 패턴과 일치하는 문자열이 있으면 true를, 없으면 false를 반환합니다.
+       	// ^ = 시작, $ = 끝, {} = 범위, [] = 문자의 집합이나 범위
+       	
+       	// 영어 소문자와 숫자를 입력할 수 있으면서 길이는 6~12인 패턴을 가진 객체 checkId.... 첫 글자는 영어로 시작해야 한다는 조건은 나중에 추가하자
+       	let checkId = new RegExp("^[a-z0-9]{6,12}$");
+       	
+    	// pw가 영어 대소문자와 숫자를 입력할 수 있으면서 길이는 10~20인 패턴을 가진 객체 checkPw.... 첫 글자는 영어로 시작하고 영어 대소문자와 숫자 그리고 특수문자가 최소한 1개씩은 들어가야한다는 조건은 나중에 추가하자
+       	let checkPw = new RegExp("^[A-Za-z0-9]{10,20}$");
+    	
+       	// id가 영어 소문자거나 숫자인지 그리고 길이가 6~12인지 확인
+       	if(checkId.test(id)){
+       		console.log('checkId.test.....');
+       		// pw가 영어나 숫자인지 그리고 길이가 10~20인지 확인
+       		if(checkPw.test(pw)){
+       			console.log('checkId.test.....');
+       			// name이 공백인지 확인
+       			if(name != ""){
+       				console.log('name이 공백이 아님.....');
+       				// age가 18세 이상이면서 65세 이하인지 확인
+       				if(age>17 && age <66){
+       					console.log('나이가 18세 이상이면서 65세 이하임.....');
+       					// gender가 Male이거나 FeMale이 맞는지 확인
+       					if(gender == "Male" || gender == "Female"){
+       						console.log('Male이거나 FeMale이 맞음');
+       						// 회원 등록
+       						$.ajax({
+       				            url:'/addMember'
+       				            ,type:'POST'
+       				            ,data:{'id':id,'pw':pw,'name':name,'age':age,'gender':gender}
+       				            ,success : function() {
+       				                $('#btnList').trigger('click');
+       				            }
+       				        });
+       					}else{
+                       		console.log('회원가입 실패5');
+                       	}
+       				}else{
+                   		console.log('회원가입 실패4');
+                   	}
+       			}else{
+               		console.log('회원가입 실패3');
+               	}
+       		}else{
+           		console.log('회원가입 실패2');
+           	}
+       	}else{
+       		console.log('회원가입 실패1');
+       	}
     });
     
     // 수정
@@ -196,6 +240,10 @@ $(document).ready(function(){
         </thead>
         <tbody>
             <tr>
+            	<!-- placeholder를 사용하면 input 상자의 크기까지밖에 글을 못보여준다.
+            	id는 영어 소문자와 숫자만 입력이 가능하고 길이는 6~12,
+            	pw는 영어 대소문자와 숫자 그리고 특수문자를 필수적으로 입력하고 길이는 10~20이라는 것을 표현할 다른 방법을 찾아보자
+            	해결책1번 https://ibrahimovic.tistory.com/30-->
                 <td><input type="text" id="id"></td>
                 <td><input type="password" id="pw"></td>
                 <td><input type="text" id="name"></td>
