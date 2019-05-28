@@ -87,7 +87,7 @@ $(document).ready(function(){
             	
             	// 다음 버튼
             	// data.lastPage가 data.pagingNumber와 같지 않으면
-            	if(data.lastPage != data.pagingNumber){
+            	if(data.lastPage != data.pagingNumber && data.pagingNumber != 1){
             		// data.lastPage를 data.pagingNumber로 나눈 몫이 pageNo와 같지 않으면
             		if(parseInt(data.lastPage/data.pagingNumber) != data.pageNo){
             			// 다음 버튼을 보여준다.
