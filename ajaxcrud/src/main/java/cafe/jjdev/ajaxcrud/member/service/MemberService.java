@@ -20,13 +20,14 @@ public class MemberService {
 	public Map<String, Object> getMemberList(int currentPage) {
 		
 		// 한 페이지에 몇명의 회원 정보를 보여 줄 것인지 정하는 rowPerPage변수(LIMIT x, y에서 y부분)
-		int rowPerPage = 10;
+		// 13보다 높으면 css때문에 pagingNumber의 위치가 이상해지니 13 이하로 쓰시오.
+		int rowPerPage = 13;
 		
 		// 페이지마다 다른 회원의 정보를 보여 줄 것인지 정하는 startRow변수(LIMIT x, y에서 x부분)
 		int startRow = (currentPage-1)*rowPerPage;
 		
 		// 한 페이지에서 페이징 번호를 몇개나 보여 줄 것인지 정하는 pagingNumber변수
-		int pagingNumber = 8;
+		int pagingNumber = 10;
 		
 		// 마지막 페이지를 구하기 위해 일단 전체 회원의 수를 구해야한다.
 		int totalMember = memberMapper.countMember();
