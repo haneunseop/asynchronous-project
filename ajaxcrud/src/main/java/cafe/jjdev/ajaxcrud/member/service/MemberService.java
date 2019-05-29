@@ -26,7 +26,7 @@ public class MemberService {
 		int startRow = (currentPage-1)*rowPerPage;
 		
 		// 한 페이지에서 페이징 번호를 몇개나 보여 줄 것인지 정하는 pagingNumber변수
-		int pagingNumber = 1;
+		int pagingNumber = 8;
 		
 		// 마지막 페이지를 구하기 위해 일단 전체 회원의 수를 구해야한다.
 		int totalMember = memberMapper.countMember();
